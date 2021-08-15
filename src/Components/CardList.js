@@ -8,48 +8,39 @@ export default function CardList(){
     const [personagens, setPersonagens] = useState([]);     /* [] como parametro pois a informação recebida é um vetor de objetos */
     const [loading,setLoading] = useState(false);       /* Quando o CardList aparecer na tela, inicia como false */
     const [filter, setFilter] = useState([]);
+    const [proximaPagina, setProximaPagina] = useState(null); 
 
-    const getData = () => {
-        fetch("https://rickandmortyapi.com/api/character")
+    const getData = (url) => {
+      if(url != null) {
+        fetch(url)
         .then(res => res.json())        /* then(então) recebe um func que vai pegar a informaçao e transforma-la em json */
         .then( (result) => {           /* Depois de converter para json, atribua as informações em set#.result é o atributo do objeto  */
           setPersonagens(result.results)       /* results pq é nele que constam as informações */
           setFilter(result.results)
+          setProximaPagina(result.info.next)
           setLoading(false)
         })
         .catch((error) => {         /* Para possiveis erros durante o fetch Boas praticas */
           console.log(error)
           setLoading(true)          /* loading passa a ser verdadeiro */
         })
+      }
      };
      /* 'e' de evento */
      /*  */
      const filterPersonagens = (e) => {
-      const filtered = filter.filter(personagem => personagem.name.includes(e.target.value));/*(item.name.includes) Verifica se o item é igual/incluida ao valor digitado na caixa o e tem o valor digitado no input */
+      const filtered = filter.filter(personagem => personagem.name.toLowerCase().includes(e.target.value.toLowerCase()));/*(item.name.includes) Verifica se o item é igual/incluida ao valor digitado na caixa o e tem o valor digitado no input */
       setPersonagens(filtered)/* Altera o estado para que apareça o pokemon filtrado na tela */
     }
     
      useEffect(() => {         /* Para que faça a renderização apenas uma vez  */
-       getData();
+       getData("https://rickandmortyapi.com/api/character");
      }, [])
-
-/*     console.log(personagens)
-    const pegarDados = ('https://rickandmortyapi.com/api/character') => {
-        if(pegarDados != null) {
-          fetch(pegarDados
-            )
-            .then(resposta => resposta.json())
-            .then( resultado => {
-              completeData = [...completeData, ...resultado.results];
-              setDados(completeData);
-              pegarDados(resultado.info.next);
-            })
-        }
-      } */
 
     return(
         <>           
           <SearchBox placeholder="Buscar personagem..." action={filterPersonagens}></SearchBox> 
+          
           <div className='card__list'> {                      /* TODO MAP USAR UMA KEY map-para cada item dentro do array faça... Usamos () para poder retornar uma expressão */}
             {
             loading ? (                                    /* Quando loading for verdadeiro (estiver com erro) Mostre Card vazio na tela */

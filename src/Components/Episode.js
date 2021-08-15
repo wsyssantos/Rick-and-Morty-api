@@ -1,18 +1,32 @@
 import { useState, useEffect, useCallback } from 'react';
 
+function getEpisodeIds(personagem) {
+  return personagem.episode.map((ep) => {
+    const lastIndex = ep.lastIndexOf("/")
+    return ep.substring(lastIndex + 1)
+  })
+}
 
+function fixResult(result) {
+  if(result instanceof Array) {
+    return result;
+  } else {
+    return [result];
+  }
+}
 
 export default function Episode(props){
     const personagem = props.personagem
     const [episode, setEpisode] = useState([]);     
     const [loading,setLoading] = useState(false);     
-    const idEpisode = personagem.episode 
     
     const getData = () => {
-        fetch("https://rickandmortyapi.com/api/episode/")
+      const episodeIds = getEpisodeIds(personagem)
+      const str = episodeIds.join(",")
+      fetch("https://rickandmortyapi.com/api/episode/" + str)
         .then(res => res.json())       
-        .then( (result) => {          
-          setEpisode(result.results)     
+        .then( (result) => {   
+          setEpisode(fixResult(result)) 
         })
         .catch((error) => {        
           console.log(error)
